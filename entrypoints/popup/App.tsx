@@ -7,6 +7,7 @@ const App: React.FC = () => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [requestCount, setRequestCount] = useState<number>(0);
 
   const availableFilters = [
     'Tiny Click Target',
@@ -14,6 +15,7 @@ const App: React.FC = () => {
     'Missing Alt Text',
     'Heading Hierarchy',
     'Too Many CTAs',
+    'Content Readability',
   ];
 
   useEffect(() => {
@@ -45,7 +47,23 @@ const App: React.FC = () => {
         setIsLoading(false);
       }
     };
+    
+    const fetchNetworkStats = async () => {
+      try {
+        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+        if (tabs[0] && tabs[0].id) {
+          const response = await browser.runtime.sendMessage({ type: 'GET_NETWORK_STATS', tabId: tabs[0].id });
+          if (response && typeof response.requestCount === 'number') {
+            setRequestCount(response.requestCount);
+          }
+        }
+      } catch (e) {
+        console.log("Could not fetch network stats", e);
+      }
+    };
+
     fetchIssues();
+    fetchNetworkStats();
   }, []);
 
   const toggleFilter = (filter: string) => {
@@ -131,9 +149,22 @@ const App: React.FC = () => {
 
         <div className="flex flex-col gap-3">
           <MetricBar label="Accessibility (Alt Text)" score={getMetricScore('Missing Alt Text')} color="bg-red-500" />
+          <MetricBar label="Content Readability" score={getMetricScore('Content Readability')} color="bg-blue-500" />
           <MetricBar label="Visual Hierarchy" score={getMetricScore('Heading Hierarchy')} color="bg-orange-500" />
           <MetricBar label="Contrast Ratio" score={getMetricScore('Low Contrast')} color="bg-red-500" />
           <MetricBar label="Click Targets" score={getMetricScore('Tiny Click Target')} color="bg-green-500" />
+        </div>
+
+        {/* Network Stats Pill */}
+        <div className="mt-2 bg-neutral-900 border border-neutral-800 rounded-lg p-3 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-neutral-300 uppercase">Network Load</span>
+            <span className="text-[10px] text-neutral-500">Requests on current page</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-black text-white">{requestCount}</span>
+            <span className="text-xs font-bold text-blue-400 bg-blue-400/10 px-1.5 py-0.5 rounded">Requests</span>
+          </div>
         </div>
       </div>
     </div>

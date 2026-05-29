@@ -12,13 +12,17 @@ Ghost UI is a browser extension that acts as a real-time UX and Accessibility au
 - **Draggable Tooltips**: Interactive bounding boxes with Draggable Tooltips and SVG leader lines so your view is never blocked.
 - **Dynamic UX Scoring**: A beautiful popup dashboard that reads the live state of the page to calculate an overall UX score.
 - **Real-Time Filtering**: Instantly toggle rules on or off right from the popup.
+- **Live Network Tracking**: Monitors `chrome.webRequest` APIs to display real-time network load metrics in the dashboard.
 
 ### 🧠 Current Heuristics (Rules)
 1. **Low Contrast**: Detects text elements that fail standard contrast ratios.
-2. **Tiny Click Targets**: Flags interactive elements (buttons, links, inputs) smaller than 44x44px.
+2. **Tiny Click Targets**: Flags interactive elements (buttons, links, inputs) smaller than standard touch targets, making intelligent exceptions for icon-only buttons.
 3. **Missing Alt Text**: Finds `<img>` tags completely missing accessibility descriptions.
 4. **Heading Hierarchy**: Warns when semantic heading levels are skipped (e.g., `H1` jumping straight to `H3`).
 5. **Too Many CTAs**: Detects visual clutter by finding groups of heavily styled primary buttons packed too closely together.
+6. **Missing Form Labels**: Scans form inputs (`<input>`, `<textarea>`, `<select>`) to ensure they have properly associated semantic labels.
+7. **Empty/Vague Links**: Identifies interactive elements lacking discernible text or utilizing poor UX copy (e.g., "click here").
+8. **Z-Index Overlap**: Uses advanced occlusion culling to find interactive elements that are accidentally obscured behind other DOM nodes.
 
 ## 🛠️ Tech Stack
 
